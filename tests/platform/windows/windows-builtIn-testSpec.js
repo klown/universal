@@ -222,13 +222,14 @@ gpii.tests.windows.builtIn = [
                 }]
             }
         },
-        processes: [
-            {
-                "command": "tasklist /fi \"STATUS eq RUNNING\" /FI \"IMAGENAME eq Magnify.exe\" | find /I \"Magnify.exe\" /C",
-                "expectConfigured": "1",
-                "expectRestored": "0"
-            }
-        ]
+        processes: [{    // should be "isRunning/getState"?
+            "isRunning": [
+                {
+                    "type": "gpii.processReporter.find",
+                    "command": "Magnify"
+                }
+            ]
+        }]
     }, {
         name: "Testing os_common using default matchmaker",
         userToken: "os_common",
@@ -384,13 +385,14 @@ gpii.tests.windows.builtIn = [
                 }]
             }
         },
-        processes: [
-            {
-                "command": "tasklist /fi \"STATUS eq RUNNING\" /FI \"IMAGENAME eq Magnify.exe\" | find /I \"Magnify.exe\" /C",
-                "expectConfigured": "1",
-                "expectRestored": "0"
-            }
-        ]
+        processes: [{    // should be isRunning/getState?
+            "isRunning": [
+                {
+                    "type": "gpii.processReporter.find",
+                    "command": "Magnify"
+                }
+            ]
+        }]
     }, {
         name: "Testing os_gnome using default matchmaker",
         userToken: "os_gnome",
@@ -451,13 +453,14 @@ gpii.tests.windows.builtIn = [
                 }]
             }
         },
-        processes: [
-            {
-                "command": "tasklist /fi \"STATUS eq RUNNING\" /FI \"IMAGENAME eq Magnify.exe\" | find /I \"Magnify.exe\" /C",
-                "expectConfigured": "1",
-                "expectRestored": "0"
-            }
-        ]
+        processes: [{    // should be isRunning/getState?
+            "isRunning": [
+                {
+                    "type": "gpii.processReporter.find",
+                    "command": "Magnify"
+                }
+            ]
+        }]
     }
 ];
 
