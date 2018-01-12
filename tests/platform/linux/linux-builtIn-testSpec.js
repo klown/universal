@@ -54,13 +54,20 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                 }]
             }
         },
-        processes: [
-            {
-                "command": "gsettings get org.gnome.desktop.a11y.applications screen-magnifier-enabled",
-                "expectConfigured": "true",
-                "expectRestored": "false"
-            }
-        ]
+        processes: [{
+            "isRunning": [
+                {
+                    "type": "gpii.processReporter.find",
+                    "command": "gnome-shell"
+                },
+                {
+                    "type": "gpii.processReporter.checkSetting",
+                    "schema": "org.gnome.desktop.a11y.applications",
+                    "setting": "screen-magnifier-enabled",
+                    "value": true
+                }
+            ]
+        }]
     },
     {
         name: "Testing os_common2 using default matchmaker",
@@ -111,13 +118,20 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                 }]
             }
         },
-        processes: [
-            {
-                "command": "gsettings get org.gnome.desktop.a11y.applications screen-magnifier-enabled",
-                "expectConfigured": "true",
-                "expectRestored": "false"
-            }
-        ]
+        processes: [{
+            "isRunning": [
+                {
+                    "type": "gpii.processReporter.find",
+                    "command": "gnome-shell"
+                },
+                {
+                    "type": "gpii.processReporter.checkSetting",
+                    "schema": "org.gnome.desktop.a11y.applications",
+                    "setting": "screen-magnifier-enabled",
+                    "value": true
+                }
+            ]
+        }]
     },
     {
         name: "Testing os_win7 using default matchmaker",
@@ -147,13 +161,20 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                 }]
             }
         },
-        processes: [
-            {
-                "command": "gsettings get org.gnome.desktop.a11y.applications screen-magnifier-enabled",
-                "expectConfigured": "true",
-                "expectRestored": "false"
-            }
-        ]
+        processes: [{
+            "isRunning": [
+                {
+                    "type": "gpii.processReporter.find",
+                    "command": "gnome-shell"
+                },
+                {
+                    "type": "gpii.processReporter.checkSetting",
+                    "schema": "org.gnome.desktop.a11y.applications",
+                    "setting": "screen-magnifier-enabled",
+                    "value": true
+                }
+            ]
+        }]
     }
 ]);
 

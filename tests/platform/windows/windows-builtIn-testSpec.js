@@ -222,11 +222,11 @@ gpii.tests.windows.builtIn = [
                 }]
             }
         },
-        processes: [{    // should be "isRunning/getState"?
+        processes: [{
             "isRunning": [
                 {
                     "type": "gpii.processReporter.find",
-                    "command": "Magnify"
+                    "command": "Magnify.exe"
                 }
             ]
         }]
@@ -385,11 +385,11 @@ gpii.tests.windows.builtIn = [
                 }]
             }
         },
-        processes: [{    // should be isRunning/getState?
+        processes: [{
             "isRunning": [
                 {
                     "type": "gpii.processReporter.find",
-                    "command": "Magnify"
+                    "command": "Magnify.exe"
                 }
             ]
         }]
@@ -453,11 +453,11 @@ gpii.tests.windows.builtIn = [
                 }]
             }
         },
-        processes: [{    // should be isRunning/getState?
+        processes: [{
             "isRunning": [
                 {
                     "type": "gpii.processReporter.find",
-                    "command": "Magnify"
+                    "command": "Magnify.exe"
                 }
             ]
         }]

@@ -21,9 +21,9 @@ https://github.com/GPII/universal/blob/master/LICENSE.txt
 // This is a useful site for manipulating which test fixtures will run during the development process
 
 module.exports = [
-    "linux/linux-builtIn-testSpec.js",
+    "linux/linux-builtIn-testSpec.js"/*,
     "linux/linux-orca-testSpec.js",
     "linux/linux-uioPlus-testSpec.js",
     "linux/linux-dynamicDeviceReporter-testSpec.js",
-    "linux/linux-xrandr-testSpec.js"
+    "linux/linux-xrandr-testSpec.js"*/
 ];
