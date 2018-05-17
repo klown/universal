@@ -18,14 +18,14 @@
 var fluid = require("infusion"),
     gpii = fluid.registerNamespace("gpii");
 
-fluid.require("%universal");
+fluid.require("%gpii-universal");
 
 gpii.loadTestingSupport();
 
 var testDefs = [
     {
         name: "Example acceptance test with 'cloudbased' flow manager using gnome keyboard settings",
-        userToken: "fm_gnome_keyboard",
+        gpiiKey: "fm_gnome_keyboard",
         OSid: "linux",
         solutionId: "org.gnome.desktop.a11y.keyboard",
         expected: {

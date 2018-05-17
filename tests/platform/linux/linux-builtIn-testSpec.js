@@ -15,10 +15,11 @@ Seventh Framework Programme (FP7/2007-2013) under grant agreement no. 289016.
 
 "use strict";
 
+
 var fluid = require("infusion"),
     gpii = fluid.registerNamespace("gpii");
 
-fluid.require("%universal");
+fluid.require("%gpii-universal");
 
 gpii.loadTestingSupport();
 
@@ -27,10 +28,32 @@ fluid.registerNamespace("gpii.tests.linux.builtIn");
 gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
     {
         name: "Testing os_common using default matchmaker",
-        userToken: "os_common",
+        gpiiKey: "os_common",
+        initialState: {
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": false
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }],
+                "org.gnome.desktop.a11y.applications.onscreen-keyboard": [{
+                    "settings": {
+                        "running": false
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-keyboard-enabled"
+                    }
+                }]
+            }
+        },
         settingsHandlers: {
             "gpii.gsettings": {
-                "some.app.id": [{
+                "org.gnome.desktop.a11y.magnifier": [{
                     "settings": {
                         "mag-factor": 1.5,
                         "screen-position": "full-screen",
@@ -41,7 +64,8 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                     "options": {
                         "schema": "org.gnome.desktop.a11y.magnifier"
                     }
-                }, {
+                }],
+                "org.gnome.desktop.interface": [{
                     "settings": {
                         "gtk-theme": "HighContrast",
                         "icon-theme": "HighContrast",
@@ -50,6 +74,51 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                     },
                     "options": {
                         "schema": "org.gnome.desktop.interface"
+                    }
+                }]
+            },
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }],
+                "org.gnome.desktop.a11y.applications.onscreen-keyboard": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-keyboard-enabled"
+                    }
+                }]
+            }
+        }
+    }, {
+        name: "Testing os_common - magnifier running on startup",
+        gpiiKey: "os_common",
+        initialState: {
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }],
+                "org.gnome.desktop.a11y.applications.onscreen-keyboard": [{
+                    "settings": {
+                        "running": false
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-keyboard-enabled"
                     }
                 }]
             }
@@ -67,11 +136,130 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                     "value": true
                 }
             ]
-        }]
+        }],
+        settingsHandlers: {
+            "gpii.gsettings": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "mag-factor": 1.5,
+                        "screen-position": "full-screen",
+                        "mouse-tracking": "proportional",
+                        "caret-tracking": "proportional",
+                        "focus-tracking": "none"
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.magnifier"
+                    }
+                }],
+                "org.gnome.desktop.interface": [{
+                    "settings": {
+                        "gtk-theme": "HighContrast",
+                        "icon-theme": "HighContrast",
+                        "text-scaling-factor": 0.75,
+                        "cursor-size": 41
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.interface"
+                    }
+                }]
+            },
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }],
+                "org.gnome.desktop.a11y.applications.onscreen-keyboard": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-keyboard-enabled"
+                    }
+                }]
+            }
+        }
+    }, {
+        name: "Testing os_common - magnifier and keyboard running on startup",
+        gpiiKey: "os_common",
+        initialState: {
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }],
+                "org.gnome.desktop.a11y.applications.onscreen-keyboard": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-keyboard-enabled"
+                    }
+                }]
+            }
+        },
+        settingsHandlers: {
+            "gpii.gsettings": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "mag-factor": 1.5,
+                        "screen-position": "full-screen",
+                        "mouse-tracking": "proportional",
+                        "caret-tracking": "proportional",
+                        "focus-tracking": "none"
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.magnifier"
+                    }
+                }],
+                "org.gnome.desktop.interface": [{
+                    "settings": {
+                        "gtk-theme": "HighContrast",
+                        "icon-theme": "HighContrast",
+                        "text-scaling-factor": 0.75,
+                        "cursor-size": 41
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.interface"
+                    }
+                }]
+            },
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }],
+                "org.gnome.desktop.a11y.applications.onscreen-keyboard": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-keyboard-enabled"
+                    }
+                }]
+            }
+        }
     },
     {
         name: "Testing os_common2 using default matchmaker",
-        userToken: "os_common2",
+        gpiiKey: "os_common2",
         settingsHandlers: {
             "gpii.gsettings": {
                 "some.app.id": [{
@@ -84,15 +272,27 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                     }
                 }]
             }
-        },
-        processes: []
+        }
     },
     {
         name: "Testing os_gnome using default matchmaker",
-        userToken: "os_gnome",
+        gpiiKey: "os_gnome",
+        initialState: {
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": false
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }]
+            }
+        },
         settingsHandlers: {
             "gpii.gsettings": {
-                "some.app.id": [{
+                "org.gnome.desktop.a11y.magnifier": [{
                     "settings": {
                         "mag-factor": 1.5,
                         "screen-position": "full-screen"
@@ -100,7 +300,8 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                     "options": {
                         "schema": "org.gnome.desktop.a11y.magnifier"
                     }
-                }, {
+                }],
+                "org.gnome.desktop.interface": [{
                     "settings": {
                         "text-scaling-factor": 0.75,
                         "cursor-size": 90
@@ -111,9 +312,20 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                 }]
             },
             "gpii.alsa": {
-                "some.app.id": [{
+                "org.alsa-project": [{
                     "settings": {
                         "masterVolume": 50
+                    }
+                }]
+            },
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
                     }
                 }]
             }
@@ -135,7 +347,20 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
     },
     {
         name: "Testing os_win7 using default matchmaker",
-        userToken: "os_win7",
+        gpiiKey: "os_win7",
+        initialState: {
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": false
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
+                    }
+                }]
+            }
+        },
         settingsHandlers: {
             "gpii.gsettings": {
                 "some.app.id": [{
@@ -157,6 +382,17 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
                     },
                     "options": {
                         "schema": "org.gnome.desktop.interface"
+                    }
+                }]
+            },
+            "gpii.gsettings.launch": {
+                "org.gnome.desktop.a11y.magnifier": [{
+                    "settings": {
+                        "running": true
+                    },
+                    "options": {
+                        "schema": "org.gnome.desktop.a11y.applications",
+                        "key": "screen-magnifier-enabled"
                     }
                 }]
             }
@@ -181,7 +417,6 @@ gpii.tests.linux.builtIn.testDefs = fluid.freezeRecursive([
 module.exports = gpii.test.bootstrap({
     testDefs:  "gpii.tests.linux.builtIn.testDefs",
     configName: "gpii.tests.acceptance.linux.builtIn.config",
-    configPath: "%universal/tests/platform/linux/configs"
+    configPath: "%gpii-universal/tests/platform/linux/configs"
 }, ["gpii.test.integration.testCaseHolder.linux"],
     module, require, __dirname);
-

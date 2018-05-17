@@ -17,14 +17,14 @@ Seventh Framework Programme (FP7/2007-2013) under grant agreement no. 289016.
 var fluid = require("infusion"),
     gpii = fluid.registerNamespace("gpii");
 
-fluid.require("%universal");
+fluid.require("%gpii-universal");
 
 gpii.loadTestingSupport();
 
 var testDefs = [
     {
         name: "Test for Online Banking demonstrator (OLB) with Online Flow Manager (German sign language).",
-        userToken: "olb_Lara",
+        gpiiKey: "olb_Lara",
         solutionId: "eu.gpii.olb",
         expected: {
             "eu.gpii.olb": {
@@ -38,7 +38,7 @@ var testDefs = [
     },
     {
         name: "Test for Online Banking demonstrator (OLB) with Online Flow Manager (US sign language).",
-        userToken: "olb_KimCallahan",
+        gpiiKey: "olb_KimCallahan",
         solutionId: "eu.gpii.olb",
         expected: {
             "eu.gpii.olb": {
@@ -52,7 +52,7 @@ var testDefs = [
     },
     {
         name: "Test for Online Banking demonstrator (OLB) with Online Flow Manager (contrast and large text).",
-        userToken: "olb_Carla",
+        gpiiKey: "olb_Carla",
         solutionId: "eu.gpii.olb",
         expected: {
             "eu.gpii.olb": {
@@ -69,7 +69,7 @@ var testDefs = [
     },
     {
         name: "Test for Online Banking demonstrator (OLB) with only application-specific terms.",
-        userToken: "olb_applicationSpecific_01",
+        gpiiKey: "olb_applicationSpecific_01",
         solutionId: "eu.gpii.olb",
         expected: {
             "eu.gpii.olb": {
@@ -90,7 +90,7 @@ var testDefs = [
     },
     {
         name: "Test for Online Banking demonstrator (OLB) with Online Flow Manager: unsupported sign language.",
-        userToken: "olb_QinKesheng",
+        gpiiKey: "olb_QinKesheng",
         solutionId: "eu.gpii.olb",
         expected: {
             "eu.gpii.olb": {
@@ -103,7 +103,7 @@ var testDefs = [
     },
     {
         name: "Test for Online Banking demonstrator (OLB) with Online Flow Manager: simplified UI.",
-        userToken: "olb_Alicia_cmn",
+        gpiiKey: "olb_Alicia_cmn",
         solutionId: "eu.gpii.olb",
         expected: {
             "eu.gpii.olb": {
@@ -117,4 +117,3 @@ var testDefs = [
 ];
 
 module.exports = gpii.test.cloudBased.bootstrap(testDefs, __dirname);
-

@@ -19,14 +19,14 @@ Seventh Framework Programme (FP7/2007-2013) under grant agreement no. 289016.
 var fluid = require("infusion"),
     gpii = fluid.registerNamespace("gpii");
 
-fluid.require("%universal");
+fluid.require("%gpii-universal");
 
 gpii.loadTestingSupport();
 
 var testDefs = [
     {
-        name: "Acceptance test with 'cloudbased' flow manager for smarthouse1 token",
-        userToken: "smarthouse1",
+        name: "Acceptance test with 'cloudbased' flow manager for smarthouse1 GPII key",
+        gpiiKey: "smarthouse1",
         solutionId: "net.gpii.smarthouses",
         expected: {
             "net.gpii.smarthouses": {
@@ -38,8 +38,8 @@ var testDefs = [
         }
     },
     {
-        name: "Acceptance test with 'cloudbased' flow manager for smarthouse2 token",
-        userToken: "smarthouse2",
+        name: "Acceptance test with 'cloudbased' flow manager for smarthouse2 GPII key",
+        gpiiKey: "smarthouse2",
         solutionId: "net.gpii.smarthouses",
         expected: {
             "net.gpii.smarthouses": {
@@ -53,4 +53,3 @@ var testDefs = [
 ];
 
 module.exports = gpii.test.cloudBased.bootstrap(testDefs, __dirname);
-

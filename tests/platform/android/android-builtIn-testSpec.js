@@ -18,7 +18,7 @@ Seventh Framework Programme (FP7/2007-2013) under grant agreement no. 289016.
 var fluid = require("infusion"),
     gpii = fluid.registerNamespace("gpii");
 
-fluid.require("%universal");
+fluid.require("%gpii-universal");
 
 gpii.loadTestingSupport();
 
@@ -27,7 +27,7 @@ fluid.registerNamespace("gpii.tests.android.builtIn");
 gpii.tests.android.builtIn = [
     {
         name: "Testing os_android using default matchmaker",
-        userToken: "os_android",
+        gpiiKey: "os_android",
         settingsHandlers: {
             "gpii.androidSettings": {
                 "some.app.id": [{
@@ -62,7 +62,7 @@ gpii.tests.android.builtIn = [
     },
     {
         name: "Testing os_android_common using default matchmaker",
-        userToken: "os_android_common",
+        gpiiKey: "os_android_common",
         settingsHandlers: {
             "gpii.androidSettings": {
                 "some.app.id": [{
@@ -97,7 +97,7 @@ gpii.tests.android.builtIn = [
     },
     {
         name: "Testing os_gnome using default matchmaker",
-        userToken: "os_gnome",
+        gpiiKey: "os_gnome",
         settingsHandlers: {
             "gpii.androidPersistentConfiguration": {
                 "some.app.id": [{
@@ -110,7 +110,7 @@ gpii.tests.android.builtIn = [
     },
     {
         name: "Testing os_common using default matchmaker",
-        userToken: "os_common",
+        gpiiKey: "os_common",
         settingsHandlers: {
             "gpii.androidPersistentConfiguration": {
                 "some.app.id": [{
@@ -126,6 +126,6 @@ gpii.tests.android.builtIn = [
 module.exports = gpii.test.bootstrap({
     testDefs:  "gpii.tests.android.builtIn",
     configName: "gpii.tests.acceptance.android.builtIn.config",
-    configPath: "%universal/tests/platform/android/configs"
+    configPath: "%gpii-universal/tests/platform/android/configs"
 }, ["gpii.test.integration.testCaseHolder.android"],
     module, require, __dirname);

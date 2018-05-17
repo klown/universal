@@ -18,14 +18,14 @@
 var fluid = require("infusion"),
     gpii = fluid.registerNamespace("gpii");
 
-fluid.require("%universal");
+fluid.require("%gpii-universal");
 
 gpii.loadTestingSupport();
 
 var testDefs = [
     {
-        name: "Acceptance test for empty preferences set",
-        userToken: "empty",
+        name: "Acceptance test for empty preference set",
+        gpiiKey: "empty",
         solutionId: "org.chrome.cloud4chrome",
         expected: {}
     }
