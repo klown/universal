@@ -291,24 +291,24 @@ gpii.dataLoader.createFetchSnapsetsStep = function (options) {
         togo,
         "Error retrieving snapsets Prefs Safes: "
     );
-    var snapsSetsRequest = gpii.dataLoader.queryDatabase(
+    var snapSetsRequest = gpii.dataLoader.queryDatabase(
         options.prefsSafesViewUrl,
         response,
         "Error requesting snapsets Prefs Safes: "
     );
-    return { request: snapsSetsRequest, promise: togo };
+    snapSetsRequest.end();
+    return togo;
+//    return function () { snapSetsRequest.end(); return togo; };
 };
 
 /*
  * Create the step that fetches the current GPII keys associate with the snapset
  * Prefs Safes.
- * @param {Promise} previousStep - Promise from a previous step whose fulfillment
- *                                 triggers the request configured herein.
  * @param {Object} options - Object that has the view for finding all GPII Key
  *                           records in the database.
  * @return {Promise} - The promise asoociated with this step.
  */
-gpii.dataLoader.createFetchGpiiKeysStep = function (previousStep, options) {
+gpii.dataLoader.createFetchGpiiKeysStep = function (options) {
     var togo = fluid.promise();
     var response = gpii.dataLoader.createResponseHandler(
         gpii.dataLoader.processGpiiKeys,
@@ -321,22 +321,26 @@ gpii.dataLoader.createFetchGpiiKeysStep = function (previousStep, options) {
         response,
         "Error requesting GPII Keys: "
     );
-    previousStep.then(function () { request.end(); }, gpii.dataLoader.gbail);
+    request.end();
     return togo;
 };
 
 /*
  * Log how many snapset Prefs Safes and GPII Keys were deleted.
- * @param {String} responseString - Response from the database
+ * @param {String} responseString - Response from the database (ignored)
  * @param {Object} options - Object that contains the sets of Prefs Safes and
  *                           their keys.
+ * @return an object containing the number of snapsets and gpiiKeys deleted.
  */
 gpii.dataLoader.logSnapsetDeletion = function (responseString, options) {
     fluid.log(  "Deleted " +
                 options.snapsetPrefsSafes.length + " Prefs Safes and " +
-                options.gpiiKeys.length + " associated GPII Keys, " +
-                "response:  " + responseString
+                options.gpiiKeys.length + " associated GPII Keys, "
     );
+    return {
+        snapsets: options.snapsetPrefsSafes.length, 
+        gpiiKeys: options.gpiiKeys.length
+    };
 };
 
 /*
@@ -347,17 +351,14 @@ gpii.dataLoader.logSnapsetDeletion = function (responseString, options) {
  * @param {Object} options - Object that contains the records to be deleted.
  * @return {Promise} - The promise asoociated with this step.
  */
-gpii.dataLoader.createBatchDeleteStep = function (previousStep, options) {
+gpii.dataLoader.createBatchDeleteStep = function (options) {
     var togo = fluid.promise();
     var response = gpii.dataLoader.createResponseHandler(
         gpii.dataLoader.logSnapsetDeletion,
         options,
         togo
     );
-    previousStep.then(
-        function () { gpii.dataLoader.doBatchDelete(response, options); },
-        gpii.dataLoader.bail
-    );
+    gpii.dataLoader.doBatchDelete(response, options);
     return togo;
 };
 
@@ -368,20 +369,19 @@ gpii.dataLoader.createBatchDeleteStep = function (previousStep, options) {
  *                           the Prefs Safes were loaded.
  */
 gpii.dataLoader.logSnapsetsUpload = function (responseString, options) {
-    fluid.log ("Bulk loading of build data from '" + options.buildDataDir + "'");
-    fluid.log ("Bulk loading of demo user data from '" + options.demoUserDir + "'");
+    fluid.log("Bulk loading of build data from '" + options.buildDataDir + "'");
+    fluid.log("Bulk loading of demo user data from '" + options.demoUserDir + "'");
+    return "Uploaded latest snapsets and demo user preferences";
 };
 
 /*
  * Create the step that uploads, in batch, the new snapset Prefs Safes, their
  * associated GPII keys, and the demo user Prefs Safes/GPII Keys.
- * @param {Promise} previousStep - Promise from a previous step whose fulfillment
- *                                 triggers this bulk upload request.
  * @param {Object} options - Object that has the paths to the directories that
  *                           contain the new snapsets and demo user preferences.
  * @return {Promise} - The promise asoociated with this step.
  */
-gpii.dataLoader.createBatchUploadStep = function (previousStep, options) {
+gpii.dataLoader.createBatchUploadStep = function (options) {
     var togo = fluid.promise();
     var buildData = gpii.dataLoader.getDataFromDirectory(options.buildDataDir);
     var demoUserData = gpii.dataLoader.getDataFromDirectory(options.demoUserDir);
@@ -391,8 +391,8 @@ gpii.dataLoader.createBatchUploadStep = function (previousStep, options) {
         options,
         togo
     );
-    var request = gpii.dataLoader.createBulkDocsRequest(allData, response, options);
-    previousStep.then(request, gpii.dataLoader.bail);
+    var execBulkRequest = gpii.dataLoader.createBulkDocsRequest(allData, response, options);
+    execBulkRequest();
     return togo;
 };
 
@@ -404,18 +404,23 @@ gpii.dataLoader.createBatchUploadStep = function (previousStep, options) {
  */
 gpii.dataLoader.orchestrate = function () {
     var options = gpii.dataLoader.initOptions(process.argv);
-    var lastStep;
-    var firstStep = gpii.dataLoader.createFetchSnapsetsStep(options);
-    var nextStep = gpii.dataLoader.createFetchGpiiKeysStep(firstStep.promise, options);
-    nextStep = gpii.dataLoader.createBatchDeleteStep(nextStep, options);
-    if (options.justDelete) {
-        lastStep = nextStep;
-    } else {
-        lastStep = gpii.dataLoader.createBatchUploadStep(nextStep, options);
-    };
-    // Go!
-    firstStep.request.end();
-    lastStep.then(function () { fluid.log("Done."); }, gpii.dataLoader.bail);
+    // Load the initial part of the sequence.
+    var sequence = [
+        fluid.promise(),
+        gpii.dataLoader.createFetchSnapsetsStep,   // gpii.dataLoader.createFetchSnapsetsStep(options),
+        gpii.dataLoader.createFetchGpiiKeysStep,   // gpii.dataLoader.createFetchGpiiKeysStep(options)
+        gpii.dataLoader.createBatchDeleteStep
+    ];
+    if (!options.justDelete) {
+        sequence.push(gpii.dataLoader.createBatchUploadStep);
+    }
+    var ultimate = fluid.promise.sequence(sequence, options);
+    sequence[0].resolve("Start");
+    ultimate.then(function (result) {
+        fluid.log("Done.");
+        var x = result;
+        var y = options;
+        debugger;
+    });
 };
-
 gpii.dataLoader.orchestrate();
