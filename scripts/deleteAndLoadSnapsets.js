@@ -321,7 +321,7 @@ gpii.dataLoader.logSnapsetDeletion = function (responseString, options) {
                 options.gpiiKeys.length + " associated GPII Keys, "
     );
     return {
-        snapsets: options.snapsetPrefsSafes.length, 
+        snapsets: options.snapsetPrefsSafes.length,
         gpiiKeys: options.gpiiKeys.length
     };
 };
@@ -381,14 +381,10 @@ gpii.dataLoader.createBatchUploadStep = function (options) {
 };
 
 /*
- * Create the steps to load the static data, find and delete the current snapset
- * Prefs Safes and the GPII keys, and then load the latest snapset Prefs Safes
- * and their Keys, and the demo user Prefs Safes and their GPII Keys.  After all
- * steps are configured and connected, trigger the first one.
+ * Create and execute the steps to update the database.
  */
 gpii.dataLoader.orchestrate = function () {
     var options = gpii.dataLoader.initOptions(process.argv);
-    // Load the initial part of the sequence.
     var sequence = [
         gpii.dataLoader.createFetchSnapsetsStep,
         gpii.dataLoader.createFetchGpiiKeysStep,
@@ -398,17 +394,12 @@ gpii.dataLoader.orchestrate = function () {
         sequence.push(gpii.dataLoader.createBatchUploadStep);
     }
     fluid.promise.sequence(sequence, options).then(
-        function (result) {
+        function (/*result*/) {
             fluid.log("Done.");
-            var x = result;
-            var y = options;
-            debugger;
             process.exit(0);
         },
         function (error) {
             fluid.log(error);
-            var y = options;
-            debugger;
             process.exit(1);
         }
     );
