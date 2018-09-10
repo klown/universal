@@ -30,8 +30,8 @@ fluid.registerNamespace("gpii.dataLoader");
 fluid.setLogging(fluid.logLevel.INFO);
 
 // Handle command line
-if (process.argv.length < 5) {
-    fluid.log("Usage: node deleteAndLoadSnapsets.js $COUCHDB_URL $BUILD_DATA_DIR $BUILD_DEMOUSER_DIR [--justDelete]");
+if (process.argv.length < 6) {
+    fluid.log("Usage: node deleteAndLoadSnapsets.js $COUCHDB_URL $STATIC_DATA_DIR $BUILD_DATA_DIR $BUILD_DEMOUSER_DIR [--justDelete]");
     process.exit(1);
 }
 
@@ -45,18 +45,23 @@ if (process.argv.length < 5) {
 gpii.dataLoader.initOptions = function (processArgv) {
     var dbOptions = {};
     dbOptions.couchDbUrl = processArgv[2];
-    dbOptions.buildDataDir = processArgv[3];
-    dbOptions.demoUserDir = processArgv[4];
-    if (processArgv.length > 5 && processArgv[5] === "--justDelete") { // for debugging.
+    dbOptions.staticDataDir = processArgv[3];
+    dbOptions.buildDataDir = processArgv[4];
+    dbOptions.demoUserDir = processArgv[5];
+    if (processArgv.length > 6 && processArgv[6] === "--justDelete") { // for debugging.
         dbOptions.justDelete = true;
     } else {
         dbOptions.justDelete = false;
     }
 
     // Set up database specific options
+    dbOptions.viewsUrl = dbOptions.couchDbUrl + "/_design/views";
     dbOptions.prefsSafesViewUrl = dbOptions.couchDbUrl + "/_design/views/_view/findSnapsetPrefsSafes";
     dbOptions.gpiiKeysViewUrl = dbOptions.couchDbUrl + "/_design/views/_view/findAllGpiiKeys";
     dbOptions.parsedCouchDbUrl = url.parse(dbOptions.couchDbUrl);
+    dbOptions.staticData = [];
+    /* dbOptions.newViews; */
+    /* dbOptions.oldViews; */
     dbOptions.snapsetPrefsSafes = [];
     dbOptions.gpiiKeys = [];
     dbOptions.postOptions = {
@@ -76,8 +81,115 @@ gpii.dataLoader.initOptions = function (processArgv) {
         dbOptions.parsedCouchDbUrl.port +
         dbOptions.parsedCouchDbUrl.pathname + "'"
     );
+    fluid.log("STATIC_DATA_DIR: '" + dbOptions.staticDataDir + "'");
     fluid.log("BUILD_DATA_DIR: '" + dbOptions.buildDataDir + "'");
+    fluid.log("BUILD_DEMOUSER_DIR: '" + dbOptions.demoUserDir + "'");
     return dbOptions;
+};
+
+/*
+ * Loads the static data from disk, and creates a separate reference to the
+ * views document.
+ * @param {Object} options - Object that has the path to the directory
+ *                           containing the static data. On output, contains
+ *                           members for the new views and other static data.
+ */
+gpii.dataLoader.loadStaticDataFromDisk = function (options) {
+    var data = gpii.dataLoader.getDataFromDirectory(options.staticDataDir);
+    var views = fluid.find(data, function (anElement) {
+        if (anElement._id && anElement._id === "_design/views") {
+            return anElement;
+        } else {
+            return undefined;
+        }
+    });
+    options.staticData = data;
+    options.newViews = views;
+};
+
+/*
+ * Create the step that loads the static data into the database.
+ * @param {Object} options - Object that has the static data to load.
+ * @return {Promise} - A promise that resolves loading the static data.
+ */
+gpii.dataLoader.createStaticDataStep = function (options) {
+    var togo = fluid.promise();
+    var response = gpii.dataLoader.createResponseHandler(
+        function (responseString, options) {
+            fluid.log("Loading static data from '" + options.staticDataDir + "'");
+            return "Uploaded static data.";
+        },
+        options,
+        togo,
+        "Error loading static data into database: "
+    );
+    var staticDataRequest = gpii.dataLoader.createBulkDocsRequest(
+        options.staticData, response, options
+    );
+    staticDataRequest.end();
+    return togo;
+};
+
+/*
+ * Create the step that retrieves the current views from the database.
+ * @param {Object} options - Object containing the views URL into the database.
+ * @return {Promise} - A promise that resolves retrieving the old views.
+ */
+gpii.dataLoader.createFetchOldViewsStep = function (options) {
+    var togo = fluid.promise();
+    var response = gpii.dataLoader.createResponseHandler(
+        function (responseString, options) {
+            fluid.log("Retrieving old views from database.");
+            var oldViews = JSON.parse(responseString);
+            options.oldViews = oldViews;
+            return oldViews;
+        },
+        options,
+        togo,
+        "Error retrieving old views from database: "
+    );
+    var viewsRequest = gpii.dataLoader.queryDatabase(
+        options.viewsUrl, response, options
+    );
+    viewsRequest.end();
+    return togo;
+};
+
+/*
+ * Create the step that updates the views in the database.
+ * @param {Object} options - New views data to update with, and the old views
+ *                           currently in the database.
+ * @return {Promise} - A promise that resolves updating the views.
+ */
+gpii.dataLoader.createUpdateViewsStep = function (options) {
+    var togo = fluid.promise();
+
+    // Check to see if the views need updating.
+    var oldViews = JSON.stringify(options.oldViews.views);
+    var newViews = JSON.stringify(options.newViews.views);
+    if (newViews === oldViews) {
+        fluid.log ("New views match old views, no change.");
+        togo.resolve("Updated views:  no change");
+    }
+    else {
+        var response = gpii.dataLoader.createResponseHandler(
+            function (responseString) {
+                var result = JSON.parse(responseString)[0];
+                fluid.log("Updated views: '" + JSON.stringify(result) + "'");
+                return JSON.stringify(result);
+            },
+            options,
+            togo,
+            "Error updating views: "
+        );
+        var viewsDataToPost = options.oldViews;         // id and rev
+        viewsDataToPost.views = options.newViews.views; // new data.
+        var request = gpii.dataLoader.createBulkDocsRequest(
+            [viewsDataToPost], response, options
+        );
+        request.end();
+    }
+    return togo;
 };
 
 /**
@@ -216,6 +328,7 @@ gpii.dataLoader.createResponseHandler = function (handleEnd, options, promise, e
         });
         response.on("error", function (e) {
             fluid.log(errorMsg + e.message);
+            debugger;
             promise.reject(e);
         });
     };
@@ -385,7 +498,12 @@ gpii.dataLoader.createBatchUploadStep = function (options) {
  */
 gpii.dataLoader.orchestrate = function () {
     var options = gpii.dataLoader.initOptions(process.argv);
+    gpii.dataLoader.loadStaticDataFromDisk(options);
+    debugger;
     var sequence = [
+        gpii.dataLoader.createStaticDataStep,
+        gpii.dataLoader.createFetchOldViewsStep,
+        gpii.dataLoader.createUpdateViewsStep,
         gpii.dataLoader.createFetchSnapsetsStep,
         gpii.dataLoader.createFetchGpiiKeysStep,
         gpii.dataLoader.createBatchDeleteStep
@@ -394,7 +512,10 @@ gpii.dataLoader.orchestrate = function () {
         sequence.push(gpii.dataLoader.createBatchUploadStep);
     }
     fluid.promise.sequence(sequence, options).then(
-        function (/*result*/) {
+        function (result) {
+            var x = result;
+            var y = options;
+            debugger;
             fluid.log("Done.");
             process.exit(0);
         },
