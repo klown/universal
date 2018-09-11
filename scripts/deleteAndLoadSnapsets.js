@@ -123,7 +123,7 @@ gpii.dataLoader.createStaticDataStep = function (options) {
         togo,
         "Error loading static data into database: "
     );
-    var staticDataRequest = gpii.dataLoader.createBulkDocsRequest(
+    var staticDataRequest = gpii.dataLoader.createPostRequest(
         options.staticData, response, options
     );
     staticDataRequest.end();
@@ -165,6 +165,7 @@ gpii.dataLoader.createUpdateViewsStep = function (options) {
     var togo = fluid.promise();
 
     // Check to see if the views need updating.
+    // JS: Not sure how useful this is.
     var oldViews = JSON.stringify(options.oldViews.views);
     var newViews = JSON.stringify(options.newViews.views);
     if (newViews === oldViews) {
@@ -184,7 +185,7 @@ gpii.dataLoader.createUpdateViewsStep = function (options) {
         );
         var viewsDataToPost = options.oldViews;         // id and rev
         viewsDataToPost.views = options.newViews.views; // new data.
-        var request = gpii.dataLoader.createBulkDocsRequest(
+        var request = gpii.dataLoader.createPostRequest(
             [viewsDataToPost], response, options
         );
         request.end();
@@ -267,7 +268,7 @@ gpii.dataLoader.markPrefsSafesGpiiKeysForDeletion = function (gpiiKeyRecords, sn
  */
 gpii.dataLoader.configureBatchDelete = function (batchDeleteResponse, options) {
     var docsToRemove = options.snapsetPrefsSafes.concat(options.gpiiKeys);
-    return gpii.dataLoader.createBulkDocsRequest(
+    return gpii.dataLoader.createPostRequest(
         docsToRemove, batchDeleteResponse, options
     );
 };
@@ -279,7 +280,7 @@ gpii.dataLoader.configureBatchDelete = function (batchDeleteResponse, options) {
  * @param {Object} options - Data loader options, specifically the POST options.
  * @return {http.ClientRequest} - An http request object.
  */
-gpii.dataLoader.createBulkDocsRequest = function (dataToPost, responseHandler, options) {
+gpii.dataLoader.createPostRequest = function (dataToPost, responseHandler, options) {
     var batchPostData = JSON.stringify({"docs": dataToPost});
     options.postOptions.headers["Content-Length"] = Buffer.byteLength(batchPostData);
     var batchDocsRequest = http.request(options.postOptions, responseHandler);
@@ -488,7 +489,7 @@ gpii.dataLoader.createBatchUploadStep = function (options) {
         options,
         togo
     );
-    var bulkUploadRequest = gpii.dataLoader.createBulkDocsRequest(allData, response, options);
+    var bulkUploadRequest = gpii.dataLoader.createPostRequest(allData, response, options);
     bulkUploadRequest.end();
     return togo;
 };
