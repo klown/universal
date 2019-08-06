@@ -176,10 +176,10 @@ gpii.accessTokens.migrateRecursive = function (options) {
         },
         function (error) {
             if (error.errorCode === "GPII-NO-MORE-DOCS") {
-                console.log("Exiting: " + error.message);
+                console.log("Done: " + error.message);
                 process.exit(0);
             } else {
-                console.log(error);
+                console.log("Exiting with error: " + error);
                 process.exit(1);
             }
         }
