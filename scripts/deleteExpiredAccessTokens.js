@@ -176,18 +176,17 @@ gpii.accessTokens.flush = function (options) {
  *                                          access tokens in the database.
  * @param {Array} options.postOptions - The url for posting the bulk deletion.
  * @param {Number} options.totalDeleted - The total number of deleted access tokens.
- * @return {Promise} - Promise that either resolves the sequence with a progress
- *                    message or rejects with an error.
+ * @param {Promise} endSequence - Promise that either resolves the sequence with
+ *                  a progress message or rejects with an error.
  */
-gpii.accessTokens.deleteRecursive = function (options) {
-    var endSequence = fluid.promise();
+gpii.accessTokens.deleteRecursive = function (options, endSequence) {
     var sequence = [
         gpii.accessTokens.retrieveExpiredAccessTokens,
         gpii.accessTokens.flush
     ];
     fluid.promise.sequence(sequence, options).then(
         function (/*result*/) {
-            endSequence = gpii.accessTokens.deleteRecursive(options);
+            gpii.accessTokens.deleteRecursive(options, endSequence);
         },
         function (error) {
             if (error.errorCode === "GPII-NO-MORE-DOCS") {
@@ -197,7 +196,6 @@ gpii.accessTokens.deleteRecursive = function (options) {
             }
         }
     );
-    return endSequence;
 };
 
 /**
@@ -205,7 +203,8 @@ gpii.accessTokens.deleteRecursive = function (options) {
  */
 gpii.accessTokens.deleteAccessTokens = function () {
     var options = gpii.accessTokens.initOptions(process.argv);
-    var toFinish = gpii.accessTokens.deleteRecursive(options);
+    var toFinish = fluid.promise();
+    gpii.accessTokens.deleteRecursive(options, toFinish);
     toFinish.then(
         function (result) {
             console.log(result);
