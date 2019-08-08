@@ -176,26 +176,28 @@ gpii.accessTokens.flush = function (options) {
  *                                          access tokens in the database.
  * @param {Array} options.postOptions - The url for posting the bulk deletion.
  * @param {Number} options.totalDeleted - The total number of deleted access tokens.
+ * @return {Promise} - Promise that either resolves the sequence with a progress
+ *                    message or rejects with an error.
  */
 gpii.accessTokens.deleteRecursive = function (options) {
+    var endSequence = fluid.promise();
     var sequence = [
         gpii.accessTokens.retrieveExpiredAccessTokens,
         gpii.accessTokens.flush
     ];
     fluid.promise.sequence(sequence, options).then(
         function (/*result*/) {
-            gpii.accessTokens.deleteRecursive(options);
+            endSequence = gpii.accessTokens.deleteRecursive(options);
         },
         function (error) {
             if (error.errorCode === "GPII-NO-MORE-DOCS") {
-                console.log("Done: " + error.message + " Deleted " + options.totalDeleted + " expired access tokens in total.");
-                process.exit(0);
+                endSequence.resolve("Done: " + error.message + " Deleted " + options.totalDeleted + " expired access tokens in total.");
             } else {
-                console.log("Exiting with error: " + error);
-                process.exit(1);
+                endSequence.reject(error);
             }
         }
     );
+    return endSequence;
 };
 
 /**
@@ -203,7 +205,17 @@ gpii.accessTokens.deleteRecursive = function (options) {
  */
 gpii.accessTokens.deleteAccessTokens = function () {
     var options = gpii.accessTokens.initOptions(process.argv);
-    gpii.accessTokens.deleteRecursive(options);
+    var toFinish = gpii.accessTokens.deleteRecursive(options);
+    toFinish.then(
+        function (result) {
+            console.log(result);
+            process.exit(0);
+        },
+        function (error) {
+            console.log("Exiting with error: " + error);
+            process.exit(1);
+        }
+    );
 };
 
 gpii.accessTokens.deleteAccessTokens();
