@@ -13,11 +13,16 @@
 # gpii-version.json
 
 GPII_APP_DIR=${GPII_APP_DIR:-"/app"}
-GPII_APP_TAG=${GPII_APP_TAG:-""}
+GPII_APP_TAG=${GPII_APP_TAG:-"null"}
 
 log() {
   echo "$(date +'%Y-%m-%d %H:%M:%S') - $1"
 }
+
+if [ "$GPII_APP_TAG" = "null" ] || [ "$GPII_APP_TAG" = "" ]; then
+    log "Must set environment variable GPII_APP_TAG, e.g. '20190809170605-f8485e9'"
+    exit 1
+fi
 
 log "GPII_APP_TAG: '${GPII_APP_TAG}'"
 GPII_SHORT_SHA=`echo $GPII_APP_TAG | sed -e 's/^[0-9]*-//'`
@@ -28,13 +33,13 @@ DELAY=2
 for i in `seq 1 $NUM_TRIES`
 do
     GPII_FULL_SHA=$(curl --silent https://api.github.com/repos/GPII/universal/commits/${GPII_SHORT_SHA} | jq -r '.sha')
-    if [ "$GPII_FULL_SHA" != "null" ]; then
+    if [ "$GPII_FULL_SHA" != "null" ] && [ "$GPII_FULL_SHA" != "" ]; then
         break;
     fi
     sleep $DELAY
 done
 
-if [ "$GPII_FULL_SHA" = "null" ]; then
+if [ "$GPII_FULL_SHA" = "null" ] || [ "$GPII_FULL_SHA" = "" ]; then
     log "Failed to retrieve full SHA"
     exit 1
 fi
