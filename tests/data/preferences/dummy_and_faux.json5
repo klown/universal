@@ -1,0 +1,23 @@
+{
+    "flat": {
+        "contexts": {
+            "gpii-default": {
+                "name": "Default preferences",
+                "preferences": {
+                    "http://registry.gpii.net/applications/com.tycoon.dummyApp": {
+                        "volume": 50,
+                        "voice": "Throckmorton",
+                        "magFactor": 2
+                    },
+                    "http://registry.gpii.net/applications/org.freebie.fauxApp": {
+                        "dictation": true,
+                        "appCommands": {
+                            "open": "Open pho app",
+                            "close": "Close pho app"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

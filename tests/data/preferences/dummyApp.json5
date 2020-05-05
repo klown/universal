@@ -1,0 +1,16 @@
+{
+    "flat": {
+        "contexts": {
+            "gpii-default": {
+                "name": "Default preferences",
+                "preferences": {
+                    "http://registry.gpii.net/applications/com.tycoon.dummyApp": {
+                        "volume": 50,
+                        "voice": "Throckmorton",
+                        "magFactor": 2
+                    }
+                }
+            }
+        }
+    }
+}
